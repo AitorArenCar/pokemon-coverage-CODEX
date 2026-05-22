@@ -1,4 +1,5 @@
-import { TYPE_NAMES } from '../data/typeChart';
+import type { CSSProperties } from 'react';
+import { TYPE_COLORS, TYPE_NAMES } from '../data/typeChart';
 import { TeamAnalysis } from '../lib/teamAnalysis';
 import { TypeBadge } from './TypeBadge';
 
@@ -13,6 +14,10 @@ function multiplierClass(value: number | null): string {
   if (value < 1) return 'm-resist';
   if (value > 1) return 'm-weak';
   return 'm-neutral';
+}
+
+function typeHeaderStyle(type: keyof typeof TYPE_COLORS): CSSProperties {
+  return { '--type-color': TYPE_COLORS[type] } as CSSProperties;
 }
 
 export function DefensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
@@ -46,8 +51,17 @@ export function DefensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
         </div>
       </div>
 
-      <div className="table-scroll">
-        <table>
+      <div className="matrix-legend" aria-label="Leyenda defensiva">
+        <span className="legend-chip m-weak">2x</span>
+        <span>debilidad</span>
+        <span className="legend-chip m-resist">1/2x</span>
+        <span>resistencia</span>
+        <span className="legend-chip m-immune">0x</span>
+        <span>inmunidad</span>
+      </div>
+
+      <div className="table-scroll summary-scroll">
+        <table className="summary-table">
           <thead>
             <tr>
               <th>Tipo atacante</th>
@@ -62,22 +76,30 @@ export function DefensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
                 <td>
                   <TypeBadge type={summary.type} />
                 </td>
-                <td>{summary.weak}</td>
-                <td>{summary.resist}</td>
-                <td>{summary.immune}</td>
+                <td>
+                  <span className={summary.weak ? 'count-pill danger' : 'count-pill'}>{summary.weak}</span>
+                </td>
+                <td>
+                  <span className={summary.resist ? 'count-pill good' : 'count-pill'}>{summary.resist}</span>
+                </td>
+                <td>
+                  <span className={summary.immune ? 'count-pill immune' : 'count-pill'}>{summary.immune}</span>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="table-scroll wide-table">
-        <table>
+      <div className="table-scroll wide-table type-chart-scroll">
+        <table className="type-matrix">
           <thead>
             <tr>
               <th>Pokemon</th>
               {TYPE_NAMES.map((type) => (
-                <th key={type}>{type}</th>
+                <th className="type-axis-heading" key={type} style={typeHeaderStyle(type)}>
+                  <span>{type}</span>
+                </th>
               ))}
             </tr>
           </thead>
@@ -91,7 +113,7 @@ export function DefensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
                 {TYPE_NAMES.map((type) => {
                   const value = defense.multipliers[type];
                   return (
-                    <td key={type} className={multiplierClass(value)}>
+                    <td key={type} className={`multiplier-cell ${multiplierClass(value)}`}>
                       {formatMultiplier(value)}
                     </td>
                   );

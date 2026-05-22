@@ -1,4 +1,5 @@
-import { TYPE_NAMES } from '../data/typeChart';
+import type { CSSProperties } from 'react';
+import { TYPE_COLORS, TYPE_NAMES } from '../data/typeChart';
 import { TeamAnalysis } from '../lib/teamAnalysis';
 import { TypeBadge } from './TypeBadge';
 
@@ -13,6 +14,10 @@ function multiplierClass(value: number | null): string {
   if (value < 1) return 'm-resist';
   if (value > 1) return 'm-weak';
   return 'm-neutral';
+}
+
+function typeHeaderStyle(type: keyof typeof TYPE_COLORS): CSSProperties {
+  return { '--type-color': TYPE_COLORS[type] } as CSSProperties;
 }
 
 export function OffensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
@@ -44,6 +49,15 @@ export function OffensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
         </div>
       </div>
 
+      <div className="matrix-legend" aria-label="Leyenda ofensiva">
+        <span className="legend-chip m-weak">2x</span>
+        <span>superefectivo</span>
+        <span className="legend-chip m-resist">1/2x</span>
+        <span>poco eficaz</span>
+        <span className="legend-chip m-immune">0x</span>
+        <span>sin efecto</span>
+      </div>
+
       <div className="move-list">
         {analysis.moves.length ? (
           analysis.moves.map((entry, index) => (
@@ -64,13 +78,15 @@ export function OffensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
         )}
       </div>
 
-      <div className="table-scroll wide-table">
-        <table>
+      <div className="table-scroll wide-table type-chart-scroll">
+        <table className="type-matrix">
           <thead>
             <tr>
               <th>Movimiento</th>
               {TYPE_NAMES.map((type) => (
-                <th key={type}>{type}</th>
+                <th className="type-axis-heading" key={type} style={typeHeaderStyle(type)}>
+                  <span>{type}</span>
+                </th>
               ))}
             </tr>
           </thead>
@@ -83,9 +99,10 @@ export function OffensiveSummary({ analysis }: { analysis: TeamAnalysis }) {
                 </td>
                 {TYPE_NAMES.map((type) => {
                   const value = entry.multipliers[type];
+                  const cellClass = entry.move?.category === 'Status' ? 'm-status' : multiplierClass(value);
                   return (
-                    <td key={type} className={multiplierClass(value)}>
-                      {entry.move?.category === 'Status' ? 'Status' : formatMultiplier(value)}
+                    <td key={type} className={`multiplier-cell ${cellClass}`}>
+                      {entry.move?.category === 'Status' ? '-' : formatMultiplier(value)}
                     </td>
                   );
                 })}
