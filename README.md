@@ -93,7 +93,7 @@ Ability: Water Absorb
 
 El parser importa Pokemon, objeto, habilidad y movimientos. Ignora EVs, IVs, naturaleza, Tera Type y otras lineas no necesarias.
 
-## Alias en espanol incluidos
+## Alias en español incluidos
 
 Algunos alias aceptados:
 
